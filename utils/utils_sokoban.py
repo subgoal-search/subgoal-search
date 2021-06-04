@@ -1,0 +1,106 @@
+import itertools
+
+import numpy as np
+import matplotlib.pyplot as plt
+from gym_sokoban.envs.sokoban_env_fast import SokobanEnvFast
+
+from metric_logging import log_image
+
+
+class HashableNumpyArray:
+    hash_key = np.random.normal(size=1000000)
+
+    def __init__(self, np_array):
+        assert isinstance(np_array, np.ndarray), \
+            'This works only for np.array'
+        assert np_array.size <= self.hash_key.size, \
+            f'Expected array of size lower than {self.hash_key.size} ' \
+            f'consider increasing size of hash_key.'
+        self.np_array = np_array
+        self._hash = None
+
+    def __hash__(self):
+        if self._hash is None:
+            flat_np = self.np_array.flatten()
+            self._hash = int(np.dot(
+                flat_np,
+                self.hash_key[:len(flat_np)]) * 10e8)
+        return self._hash
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+def state_to_pic(state):
+    dim_room = (state.shape[0], state.shape[1])
+    env = SokobanEnvFast(dim_room, 2)
+    env.restore_full_state_from_np_array_version(state)
+    return env.render(mode='rgb_array').astype(int)
+
+def save_state(state, file_name, title=None):
+    pic = state_to_pic(state)
+    plt.clf()
+    if title is not None:
+        plt.title(title)
+    plt.imshow(pic)
+    plt.savefig(file_name)
+
+def many_states_to_fig(states, titles):
+    def draw_and_describe(plot, state, title):
+        pic = state_to_pic(state)
+        plot.set_title(f'{title}')
+        plot.imshow(pic)
+
+    plt.clf()
+    n_states = len(states)
+    fig, plots = plt.subplots(1, n_states)
+    fig.set_size_inches(3*n_states, 3, )
+    for idx, plot in enumerate(plots):
+        draw_and_describe(plot, states[idx], titles[idx])
+
+    plt.close()
+    return fig
+
+def show_state(state):
+    pic = state_to_pic(state)
+    plt.clf()
+    plt.imshow(pic)
+    plt.show()
+
+def draw_and_describe(state, title):
+    pic = state_to_pic(state)
+    plt.title(f'{title}')
+    plt.imshow(pic)
+
+def draw_and_log(state, title, channel, step):
+    plt.clf()
+    fig = plt.figure()
+    draw_and_describe(state, title)
+    log_image(channel, step, fig)
+    plt.close()
+
+
+def get_field_name_from_index(x):
+    objects = {0: 'wall', 1: 'empty', 2: 'goal', 3: 'box_on_goal', 4: 'box', 5: 'agent', 6: 'agent_on_goal'}
+    return objects[x]
+
+def get_field_index_from_name(x):
+    objects_class = {'wall': 0, 'empty': 1, 'goal': 2, 'box_on_goal': 3, 'box': 4, 'agent': 5, 'agent_on_goal': 6}
+    return objects_class[x]
+
+def detect_dim_room(state):
+    return (state.shape[0], state.shape[1])
+
+def detect_num_boxes(state):
+    dim_room = detect_dim_room(state)
+    num_boxes = 0
+    for xy in itertools.product(list(range(dim_room[0])),
+                                   list(range(dim_room[1]))):
+        x, y = xy
+        object = get_field_name_from_index(np.argmax(state[x][y]))
+        if object == 'box' or object == 'box_on_goal':
+            num_boxes += 1
+
+    return num_boxes

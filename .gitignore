@@ -1,0 +1,7 @@
+__pycache__/
+.idea
+resume_old
+
+# exclude everything inside the out folder, except .gitkeep
+resume_old/*
+!resume_old/.gitkeep
