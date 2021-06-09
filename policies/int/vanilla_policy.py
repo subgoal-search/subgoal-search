@@ -80,7 +80,7 @@ class VanillaPolicyINT:
         )
         actions_probs = self.predict_action_str(state_formula)
 
-        print(f'state formula = {state_formula} | actions_probs = {actions_probs}')
+        # print(f'state formula = {state_formula} | actions_probs = {actions_probs}')
         full_actions = []
         for action_str, prob in actions_probs:
             decoded_action = decode_prediction(action_str)

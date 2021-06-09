@@ -1,12 +1,13 @@
-# BFS (baseline) solve INT proof length 15;
+# BestFS (baseline) solve INT; configurable proof length
 
 # You need to specify the following parameters in command line (see README.md):
-# ValueEstimatorINT.checkpoint_path,
+# generate_problems.proof_length
+# ValueEstimatorINT.checkpoint_path
 # VanillaPolicyINT.checkpoint_path
 
 run.job_class = @jobs.JobSolveINT
 
-JobSolveINT.n_jobs = 100
+JobSolveINT.n_jobs = 500
 JobSolveINT.n_parallel_workers = 1
 JobSolveINT.batch_size = 1
 JobSolveINT.solver_class = @solvers.BestFSSolverINT
@@ -24,6 +25,5 @@ VanillaPolicyINT.num_return_sequences = 4
 VanillaPolicyINT.num_beams = 16
 VanillaPolicyINT.max_steps_allowed = 1
 
-generate_problems.proof_length = 15
-generate_problems.n_workers = 4
+generate_problems.n_workers = 8
 get_available_axioms.axiom_set_name = 'ordered_field'

@@ -65,7 +65,7 @@ def log_scalar_metrics(prefix, step, metrics):
     for (name, value) in metrics.items():
         log_scalar(prefix + '/' + name, step, value)
 
-def log_text(name, content, show_on_screen=False):
+def log_text(name, content, show_on_screen=True):
     """Logs a property to the loggers."""
     for logger in _loggers:
         logger.log_text(name, content, show_on_screen)

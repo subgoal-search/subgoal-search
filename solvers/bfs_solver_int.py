@@ -97,7 +97,7 @@ class BestFSSolverINT(GeneralSolver):
 
             #pop node from queue to expand
             curr_val, _, current_node = nodes_queue.get()
-            print(f'val = {curr_val} | {logic_statement_to_seq_string(current_node.state["observation"]["objectives"][0])}')
+            # print(f'val = {curr_val} | {logic_statement_to_seq_string(current_node.state["observation"]["objectives"][0])}')
             expanded_nodes += 1
 
             # print(logic_statement_to_seq_string(current_node.state['observation']['objectives'][0]))

@@ -29,5 +29,5 @@ DataCreatorSokobanPixelDiff.keep_trajectories = 1.
 DataCreatorSokobanPixelDiff.keep_samples = 0.1
 DataCreatorSokobanPixelDiff.validation_split = 0.1
 # Parallel workers are used to speed up data preparation:
-DataCreatorSokobanPixelDiff.n_parallel_workers = 28
+DataCreatorSokobanPixelDiff.n_parallel_workers = 10
 DataCreatorSokobanPixelDiff.batch_size = 20000

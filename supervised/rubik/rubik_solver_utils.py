@@ -32,13 +32,13 @@ FACE_TOKENS, MOVE_TOKENS, COL_TO_ID, MOVE_TOKEN_TO_ID = gen_rubik_data.policy_en
 
 def decode_action(raw_action):
     if len(raw_action) < 3:
-        print('Generated invalid move:', raw_action)
+        # print('Generated invalid move:', raw_action)
         return None
 
     move = raw_action[2]
 
     if move not in MOVE_TOKEN_TO_ID:
-        print('Generated invalid move:', raw_action)
+        # print('Generated invalid move:', raw_action)
         return None
 
     return MOVE_TOKEN_TO_ID[move]

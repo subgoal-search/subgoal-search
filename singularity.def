@@ -20,7 +20,7 @@ From: tensorflow/tensorflow:latest-gpu
 
     python3 -m pip install cloudpickle==1.6.0 gin-config==0.4.0 gym==0.18.0 neptune-client==0.4.130 numpy==1.19.5 pylint==2.7.4 pylint_quotes==0.2.1 pytest==6.2.3 randomdict==0.2.0 ray==0.8.5 ray[rllib] tensorflow==2.4.1 gym_pycolab tblib==1.7.0 joblib==1.0.1
 
-    python3 -m pip install -e git+https://github.com/subgoal-search/gym-sokoban.git
+    python3 -m pip install -e git+https://github.com/subgoal-search/gym-sokoban.git#egg=gym-sokoban
 
     # install essentials
 
