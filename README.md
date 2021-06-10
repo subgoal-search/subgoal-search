@@ -212,7 +212,11 @@ python3 runner.py \
 
 # Evaluation
 
-The following commands allow replicating results presented in the paper. It is highly recommended to use pretrained network checkpoints instead of training from scratch, as training is time- and resource-consuming.
+
+The following commands allow to run evaluation of kSubS and baselines presented in the paper. 
+In our publication we evaluated each method on the 1000 randomly sampled problems. 
+Here to allow faster execution, we set number of problems (`n_jobs`) to 5. 
+To run a full evaluation and replicate results presented in the paper, remove the last line of each command in this section.
 
 It is also recommended to redirect stdout and stderr to seperate files, as stderr contains much redundant information.
 
@@ -228,7 +232,8 @@ python3 runner.py \
 --config_file="configs/int/solve/bfs/baseline.gin" \
 --config="generate_problems.proof_length=5" \
 --config="VanillaPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_5/int_len_5_vanilla_policy\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_5/int_len_5_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_5/int_len_5_value\"" \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 BF-kSubS (k = 2) <br>
@@ -240,7 +245,8 @@ python3 runner.py \
 --config="generate_problems.proof_length=5" \
 --config="GoalGeneratorINT.generator_checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_5/int_len_5_generator_k_2\"" \
 --config="ConditionalPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_5/int_len_5_conditional_policy_k_2\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_5/int_len_5_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_5/int_len_5_value\"" \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 ### Proof length 10
@@ -253,7 +259,8 @@ python3 runner.py \
 --config_file="configs/int/solve/bfs/baseline.gin" \
 --config="generate_problems.proof_length=10" \
 --config="VanillaPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_vanilla_policy\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\"" \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 BF-kSubS (k = 3) <br>
@@ -265,7 +272,8 @@ python3 runner.py \
 --config="generate_problems.proof_length=10" \
 --config="GoalGeneratorINT.generator_checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_generator_k_3\"" \
 --config="ConditionalPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_conditional_policy_k_3\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\""  \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 ### Proof length 15
@@ -278,7 +286,8 @@ python3 runner.py \
 --config_file="configs/int/solve/bfs/baseline.gin" \
 --config="generate_problems.proof_length=15" \
 --config="VanillaPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_vanilla_policy\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\""  \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 BF-kSubS (k = 3) <br>
@@ -290,7 +299,8 @@ python3 runner.py \
 --config="generate_problems.proof_length=15" \
 --config="GoalGeneratorINT.generator_checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_generator_k_3\"" \
 --config="ConditionalPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_conditional_policy_k_3\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\"" \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 ## INT: Figure 1
@@ -311,7 +321,8 @@ python3 runner.py \
 --config="generate_problems.proof_length=15" \
 --config="StochasticMCTSAgent.n_passes=5" \
 --config="MCTSVanillaGoalBuilderInt.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_vanilla_policy\"" \
---config="JobMCTSSolveInt.value_estimator_checkpoint=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\""
+--config="JobMCTSSolveInt.value_estimator_checkpoint=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\"" \
+--config="JobMCTSSolveInt.n_proofs=5"
 ```
 
 
@@ -324,7 +335,8 @@ python3 runner.py \
 --config="StochasticMCTSAgent.n_passes=5" \
 --config="GoalGeneratorINT.generator_checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_generator_k_3\"" \
 --config="ConditionalPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_conditional_policy_k_3\"" \
---config="JobMCTSSolveInt.value_estimator_checkpoint=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\""
+--config="JobMCTSSolveInt.value_estimator_checkpoint=\"${KSUBS_RESOURCES}/int/proof_len_15/int_len_15_value\"" \
+--config="JobMCTSSolveInt.n_proofs=5"
 ```
 
 
@@ -340,7 +352,8 @@ python3 runner.py \
 --config_file="configs/int/solve/bfs/baseline.gin" \
 --config="generate_problems.proof_length=12" \
 --config="VanillaPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_vanilla_policy\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\"" \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 BF-kSubS (k = 3) <br>
@@ -352,7 +365,8 @@ python3 runner.py \
 --config="generate_problems.proof_length=12" \
 --config="GoalGeneratorINT.generator_checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_generator_k_3\"" \
 --config="ConditionalPolicyINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_conditional_policy_k_3\"" \
---config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\""
+--config="ValueEstimatorINT.checkpoint_path=\"${KSUBS_RESOURCES}/int/proof_len_10/int_len_10_value\"" \
+--config="JobSolveINT.n_jobs=5"
 ```
 
 ## Sokoban: Figure 1, Figure 2, Table 3
@@ -364,7 +378,8 @@ Requires: 30GB RAM, 4 CPU.
 python3 runner.py \
 --config_file="configs/sokoban/solve/baseline.gin" \
 --config="Sokoban.dim_room=(12,12)" \
---config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\""
+--config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\"" \
+--config="JobSolveSokobanPixelDiff.n_jobs=5"
 ```
 
 BF-kSubS (k = 4) <br>
@@ -379,7 +394,8 @@ python3 runner.py \
 --config="BestFSSolverSokoban.max_steps=4" \
 --config="Sokoban.dim_room=(12,12)" \
 --config="GoalPredictorPixelDiff.model_id=\"${KSUBS_RESOURCES}/sokoban/subgoal_generator/12-12-4\"" \
---config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\""
+--config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\"" \
+--config="JobSolveSokobanPixelDiff.n_jobs=5"
 ```
 
 For both BestFS and BF-kSubS evaluation you can change size of board using 
@@ -398,7 +414,8 @@ Requires: 10GB RAM, 20 CPU.
 python3 runner.py \
 --config_file="configs/rubik/solve/baseline.gin" \
 --config="ValueEstimatorRubik.checkpoint_path=\"${KSUBS_RESOURCES}/rubik/rubik_value\"" \
---config="VanillaPolicyRubik.checkpoint_path=\"${KSUBS_RESOURCES}/rubik/rubik_vanilla_policy\""
+--config="VanillaPolicyRubik.checkpoint_path=\"${KSUBS_RESOURCES}/rubik/rubik_vanilla_policy\"" \
+--config="JobSolveRubik.n_jobs=5"
 ```
 
 BF-kSubS (k = 4) <br>
@@ -409,7 +426,8 @@ python3 runner.py \
 --config_file="configs/rubik/solve/ksubs.gin" \
 --config="GoalGeneratorRubik.generator_checkpoint_path=\"${KSUBS_RESOURCES}/rubik/rubik_generator_k_4\"" \
 --config="ConditionalPolicyRubik.checkpoint_path=\"${KSUBS_RESOURCES}/rubik/rubik_conditional_policy_k_4\"" \
---config="ValueEstimatorRubik.checkpoint_path=\"${KSUBS_RESOURCES}/rubik/rubik_value\""
+--config="ValueEstimatorRubik.checkpoint_path=\"${KSUBS_RESOURCES}/rubik/rubik_value\"" \
+--config="JobSolveRubik.n_jobs=5"
 ```
 
 # Pre-trained Models

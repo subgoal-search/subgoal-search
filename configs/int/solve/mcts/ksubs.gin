@@ -10,7 +10,7 @@
 run.job_class = @jobs.JobMCTSSolveInt
 
 JobMCTSSolveInt.goal_builder = @MCTSGoalBuilderInt()
-JobMCTSSolveInt.n_proofs = 500
+JobMCTSSolveInt.n_proofs = 1000
 JobMCTSSolveInt.discount = 0.99
 JobMCTSSolveInt.time_limit = 8
 

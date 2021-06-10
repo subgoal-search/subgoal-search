@@ -8,7 +8,7 @@
 
 run.job_class = @jobs.JobSolveINT
 
-JobSolveINT.n_jobs = 500
+JobSolveINT.n_jobs = 1000
 JobSolveINT.n_parallel_workers = 1
 JobSolveINT.batch_size = 1
 JobSolveINT.solver_class = @solvers.BestFSSolverINT
