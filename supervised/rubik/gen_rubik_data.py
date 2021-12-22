@@ -24,6 +24,10 @@ else:
 def n_random_moves(value=gin.REQUIRED):
     return value
 
+@gin.configurable
+def subgoal_skipped_steps(value=1):
+    return value
+
 
 def make_env_Rubik(**kwargs):
     id = ("Rubik-" + str(kwargs) + "-v0").translate(str.maketrans('', '', " {}'<>()_:"))
@@ -217,7 +221,7 @@ def generate_subgoal_learning_data(num_data):
             episode = list(reversed(episode))
 
         dist = 4
-        for i in range(len(episode) - 1):
+        for i in range(len(episode) - subgoal_skipped_steps()):
             target_i = min(i + dist, len(episode) - 1)
             data_xy.append((BOS_LEXEME + episode[i], OUTPUT_START_LEXEME + episode[target_i]))
 

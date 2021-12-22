@@ -16,4 +16,5 @@ InverseSqrtWithWarmup.warmup_steps = 4000
 TrainHfForRubikGoal.init_hf_seed = 42
 TrainHfForRubikGoal.duplicate_hf_logs = True
 
-gen_rubik_data.n_random_moves.value = 30
+gen_rubik_data.n_random_moves.value = 20
+gen_rubik_data.subgoal_skipped_steps.value = 7

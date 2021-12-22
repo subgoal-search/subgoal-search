@@ -17,4 +17,4 @@ InverseSqrtWithWarmup.warmup_steps = 4000
 TrainHfForRubikValidatePolicy.init_hf_seed = 7465743
 TrainHfForRubikValidatePolicy.duplicate_hf_logs = True
 
-gen_rubik_data.n_random_moves.value = 100
+gen_rubik_data.n_random_moves.value = 20

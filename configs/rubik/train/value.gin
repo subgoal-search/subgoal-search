@@ -16,4 +16,4 @@ InverseSqrtWithWarmup.warmup_steps = 4000
 TrainHfForRubikValue.init_hf_seed = 5758
 TrainHfForRubikValue.duplicate_hf_logs = True
 
-gen_rubik_data.n_random_moves.value = 25
+gen_rubik_data.n_random_moves.value = 20
