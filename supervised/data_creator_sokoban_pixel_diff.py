@@ -256,7 +256,6 @@ def split_board_objects(state, input_board):
             target = target.flatten()
             target = np.concatenate([target, [0]])
             targets.append(target)
-            a=1
 
     # Last target: predict that no more modifications are needed.
     targets.append(

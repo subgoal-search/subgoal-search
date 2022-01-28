@@ -1,0 +1,23 @@
+# Train Sokoban baseline policy; customizable k
+# Set from command line:
+# JobSokobanTrainPolicyBaseline.dataset
+
+# run parameters:
+run.job_class = @jobs.JobSokobanTrainPolicyBaseline
+
+# Params for SokobanPolicyBaseline
+SokobanPolicyBaseline.batch_norm = True
+SokobanPolicyBaseline.kernel_size = (3, 3)
+SokobanPolicyBaseline.learning_rate = 1e-4
+SokobanPolicyBaseline.num_layers = 7
+SokobanPolicyBaseline.weight_decay = 5e-4
+
+# Params for JobSokobanTrainPolicyBaseline:
+JobSokobanTrainPolicyBaseline.dump_folder = 'out/train'
+JobSokobanTrainPolicyBaseline.epochs = 200
+JobSokobanTrainPolicyBaseline.epochs_checkpoints = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200]
+
+# Params for DataCreatorPolicyBaselineSokoban:
+# How many trajectories will be used in training (useful to limit for very large data sets):
+DataCreatorPolicyBaselineSokoban.keep_trajectories = 1
+DataCreatorPolicyBaselineSokoban.validation_split = 0.1

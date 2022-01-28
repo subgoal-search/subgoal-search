@@ -1,48 +1,39 @@
+import sys
 import time
 
 import cloudpickle
+from joblib import (
+    delayed,
+    Parallel,
+)
 
 from envs import Sokoban
-
-from joblib import Parallel, delayed
-
 from graph_tracer import GraphTracerSokoban
 from jobs.core import Job
-from metric_logging import log_scalar, log_scalar_metrics, MetricsAccumulator, log_text
-
+from metric_logging import (
+    log_scalar,
+    log_scalar_metrics,
+    log_text,
+    MetricsAccumulator,
+)
 from utils.general_utils import readable_num
 from utils.utils_sokoban import draw_and_log
 
 
-def solve_board(solver, input_board, use_graph_tracer):
-    solver.construct_networks()
-    time_s = time.time()
-    solution, tree_metrics, root, trajectory_actions, additional_info = solver.solve(input_board, use_graph_tracer)
-    time_solving = time.time() - time_s
-    return dict(
-        solution=solution,
-        tree_metrics=tree_metrics,
-        root=root,
-        trajectory_actions=trajectory_actions,
-        time_solving=time_solving,
-        input_board=input_board.copy(),
-        additional_info=additional_info
-    )
-
-
-class JobSolveSokobanPixelDiff(Job):
-    def __init__(self,
-                 solver_class,
-                 n_jobs,
-                 n_parallel_workers,
-                 batch_size,
-                 budget_checkpoints=None,
-                 boards_dataset=None,
-                 log_solutions_limit=100,
-                 boards_indices = None,
-                 use_graph_tracer=False,
-                 ):
-
+class JobSolveSokoban(Job):
+    def __init__(
+        self,
+        solver_class,
+        n_jobs,
+        n_parallel_workers,
+        batch_size,
+        budget_checkpoints=None,
+        boards_dataset=None,
+        log_solutions_limit=100,
+        boards_indices=None,
+        use_graph_tracer=False,
+        recursion_limit=None
+    ):
         self.solver_class = solver_class
         self.n_jobs = n_jobs
         self.n_parallel_workers = n_parallel_workers
@@ -62,6 +53,8 @@ class JobSolveSokobanPixelDiff(Job):
         self.use_graph_tracer = use_graph_tracer
         if self.use_graph_tracer:
             self.graph_tracer = GraphTracerSokoban()
+        
+        self.recursion_limit = recursion_limit
 
     def execute(self):
         total_time_start = time.time()
@@ -83,19 +76,18 @@ class JobSolveSokobanPixelDiff(Job):
         jobs_done = 0
         jobs_to_do = self.n_jobs
         batch_num = 0
-        all_batches = self.n_jobs // self.batch_size
-
 
         while jobs_to_do > 0:
             jobs_in_batch = min(jobs_to_do, self.batch_size)
-            boards_to_solve_in_batch = boards_to_solve[jobs_done:jobs_done+jobs_in_batch]
-            print('============================ Batch {:>4}  out  of  {:>4} ============================'.
-                  format(batch_num+1, all_batches))
+            boards_to_solve_in_batch = boards_to_solve[jobs_done:jobs_done + jobs_in_batch]
+            self.print_batch_header(batch_num)
+
             results = Parallel(n_jobs=self.n_parallel_workers, verbose=100)(
-                delayed(solve_board)(solver, input_board, self.use_graph_tracer) for input_board in boards_to_solve_in_batch
+                delayed(solve_board)(solver, input_board, self.use_graph_tracer, self.recursion_limit)
+                for input_board in boards_to_solve_in_batch
             )
-            print('========================= Solved Batch {:>4}  in  {:>4} s ========================='.
-                  format(batch_num+1, readable_num(time.time() - total_time_start)))
+
+            self.print_solution_header(batch_num, time.time() - total_time_start)
             self.log_results(results, jobs_done)
             jobs_done += jobs_in_batch
             jobs_to_do -= jobs_in_batch
@@ -110,28 +102,44 @@ class JobSolveSokobanPixelDiff(Job):
                     self.graph_tracer.draw_graph(solution, tree_nodes, tree_edges, tree_extra_edges)
 
         for metric, value in self.solved_stats.return_scalars().items():
-            log_text('summary', f'{metric},  {value}')
+            log_text('summary', f'{metric},  {value}', show_on_screen=True)
 
         finished_time = readable_num(time.time() - total_time_start)
-        log_text('summary', f'Finished time , {finished_time}')
+        log_text('summary', f'Finished time , {finished_time}', show_on_screen=True)
+
         return self.solved_stats, finished_time
+    
+    def print_batch_header(self, batch_num):
+        all_batches = self.n_jobs // self.batch_size
+        print(
+            '============================ Batch {:>4}  out  of  {:>4} ============================'.
+            format(batch_num + 1, all_batches)
+        )
+
+    def print_solution_header(self, batch_num, execution_time):
+        print(
+            '========================= Solved Batch {:>4}  in  {:>4} s ========================='.
+            format(batch_num + 1, readable_num(execution_time))
+        )
 
     def log_results(self, results, step):
-
         n_logs = len(results)
+
         for log_num, result in enumerate(results):
-            log_scalar_metrics('tree', step+log_num, result['tree_metrics'])
+            log_scalar_metrics('tree', step + log_num, result['tree_metrics'])
+
             if self.logged_solutions < self.log_solutions_limit:
-                self.log_solution(result['solution'], result['input_board'], step+log_num)
+                self.log_solution(result['solution'], result['input_board'], step + log_num)
+
             solved = result['solution'] is not None
             self.experiment_stats.log_metric_to_accumulate('tested', 1)
-            log_scalar_metrics('boards', step+log_num, self.experiment_stats.return_scalars())
+            log_scalar_metrics('boards', step + log_num, self.experiment_stats.return_scalars())
+
             if solved:
                 self.solved_stats.log_metric_to_average('rate', 1)
                 self.solved_stats.log_metric_to_accumulate('boards', 1)
                 log_scalar('solution', step + log_num, 1)
                 log_scalar('solution/length', step + log_num, len(result['trajectory_actions']))
-                # assert False
                 trajectory_actions = [str(action) for action in result['trajectory_actions']]
                 trajectory = ', '.join(trajectory_actions)
                 log_text('trajectory_actions', f'{step + log_num}: {trajectory}', False)
@@ -139,11 +147,10 @@ class JobSolveSokobanPixelDiff(Job):
             else:
                 self.solved_stats.log_metric_to_average('rate', 0)
                 self.solved_stats.log_metric_to_accumulate('boards', 0)
-                log_scalar('solution', step+log_num, 0)
+                log_scalar('solution', step + log_num, 0)
                 log_scalar('solution/length', step + log_num, -1)
                 log_text('trajectory_actions', f'{step + log_num}: unsolved', False)
                 log_scalar('solution/n_subgoals', step + log_num, -1)
-
 
             if self.budget_checkpoints is not None:
                 for budget in self.budget_checkpoints:
@@ -157,15 +164,16 @@ class JobSolveSokobanPixelDiff(Job):
                     else:
                         self.solved_stats.log_metric_to_average(f'rate/{budget}_nodes', 0)
 
-        log_scalar_metrics('solved', step+n_logs-1, self.solved_stats.return_scalars())
-
+        log_scalar_metrics('solved', step + n_logs - 1, self.solved_stats.return_scalars())
 
     def log_solution(self, solution, input_board, step):
         self.logged_solutions += 1
+
         if solution is None:
             draw_and_log(input_board, 'input (unsolved)', f'episode_{step}', 0)
         else:
             draw_and_log(input_board, 'input (solved)', f'episode_{step}', 0)
+
             for i, subgoal in enumerate(solution):
                 if i > 0:
                     title = (
@@ -173,3 +181,30 @@ class JobSolveSokobanPixelDiff(Job):
                         f'p={readable_num(subgoal.p)} val={readable_num(subgoal.value)}'
                     )
                     draw_and_log(subgoal.state, title, f'episode_{step}', i)
+
+
+def solve_board(solver, input_board, use_graph_tracer, recursion_limit=None):
+    """
+    Constructs model and runs solve. Sets recursion limit for the worker if needed.
+    """
+    if recursion_limit:
+        curr_recursion_limit = sys.getrecursionlimit()
+
+        if curr_recursion_limit < recursion_limit:
+            print(f'Rising recursion limit for worker from {curr_recursion_limit} to {recursion_limit}.')
+            sys.setrecursionlimit(recursion_limit)
+
+    solver.construct_networks()
+    time_s = time.time()
+    solution, tree_metrics, root, trajectory_actions, additional_info = solver.solve(input_board, use_graph_tracer)
+    time_solving = time.time() - time_s
+
+    return dict(
+        solution=solution,
+        tree_metrics=tree_metrics,
+        root=root,
+        trajectory_actions=trajectory_actions,
+        time_solving=time_solving,
+        input_board=input_board.copy(),
+        additional_info=additional_info
+    )

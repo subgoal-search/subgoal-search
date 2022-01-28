@@ -6,21 +6,22 @@
 # GoalPredictorPixelDiff.model_id
 # ValueEstimator.model_id
 
-#run parameters:
-run.job_class = @jobs.JobSolveSokobanPixelDiff
+# run parameters:
+run.job_class = @jobs.JobSolveSokoban
 
-#Env params:
+# Env params:
 Sokoban.num_boxes = 4
 
-#Params for JobSolveSokoban:
-JobSolveSokobanPixelDiff.n_jobs = 1000
-JobSolveSokobanPixelDiff.n_parallel_workers = 1
-JobSolveSokobanPixelDiff.batch_size = 1
-JobSolveSokobanPixelDiff.solver_class = @solvers.BestFSSolverSokoban
-JobSolveSokobanPixelDiff.budget_checkpoints = [50, 100, 200, 300, 500, 1000, 2000, 3000, 5000]
-JobSolveSokobanPixelDiff.log_solutions_limit = 0
+# Params for JobSolveSokoban:
+JobSolveSokoban.n_jobs = 1000
+JobSolveSokoban.n_parallel_workers = 10
+JobSolveSokoban.batch_size = 100
+JobSolveSokoban.solver_class = @solvers.BestFSSolverSokoban
+JobSolveSokoban.budget_checkpoints = [50, 100, 200, 300, 500, 1000, 2000, 3000, 5000]
+JobSolveSokoban.log_solutions_limit = 0
+JobSolveSokoban.recursion_limit = 10000
 
-#Params for BestFSSolverSokoban:
+# Params for BestFSSolverSokoban:
 BestFSSolverSokoban.total_confidence_level = 0.98
 BestFSSolverSokoban.internal_confidence_level = 0.9
 BestFSSolverSokoban.max_goals = 4
@@ -29,5 +30,10 @@ BestFSSolverSokoban.max_tree_size = 5000
 BestFSSolverSokoban.value_estimator_class = @value_estimators.ValueEstimator
 BestFSSolverSokoban.goal_builder_class = @goal_builders.BFSGoalBuilderSokobanPixelDiff
 
-#Params for BFSGoalBuilderSokoban:
+# Params for BFSGoalBuilderSokoban:
 BFSGoalBuilderSokobanPixelDiff.goal_generating_network_class = @goal_generating_networks.GoalPredictorPixelDiff
+BFSGoalBuilderSokobanPixelDiff.max_goal_builder_tree_depth = 100
+BFSGoalBuilderSokobanPixelDiff.max_goal_builder_tree_size = 5000
+
+# Params for ValueEstimator
+ValueEstimator.correction_for_boxes = False
