@@ -4,35 +4,19 @@ import numpy as np
 from gym_sokoban.envs.sokoban_env_fast import SokobanEnvFast
 
 from envs import Sokoban
-from goal_builders.core import GoalBuilder
-from supervised.data_creator_sokoban import DataCreatorSokoban, clear_board
+from goal_builders.sokoban.bfs_graph import BFSGraph
+from goal_builders.sokoban.goal_builder import GoalBuilder
+from goal_builders.sokoban.goal_builder_node import GoalBuilderNode
+from supervised.data_creator_sokoban import (
+    clear_board,
+    DataCreatorSokoban,
+)
 from utils.general_utils import readable_num
-from utils.utils_sokoban import get_field_name_from_index, get_field_index_from_name, HashableNumpyArray
-
-
-class GoalBuilderNode:
-    def __init__(self, input_board, condition, p, elements_added, done, id, level, parent):
-
-        self.input_board = input_board
-        self.condition = condition
-        self.p = p
-        self.elements_added = elements_added
-
-        self.done = done
-        self.goal_state = None
-        self.hashed_goal = None
-        if done:
-            self.goal_state = self.condition
-            self.hashed_goal = HashableNumpyArray(self.goal_state)
-        self.children = []
-
-        self.path = None
-        self.id = id
-        self.level = level
-        self.parent = parent
-
-    def add_path_info(self, path):
-        self.path = path
+from utils.utils_sokoban import (
+    get_field_index_from_name,
+    get_field_name_from_index,
+    HashableNumpyArray,
+)
 
 
 class BFSGraph:
@@ -45,11 +29,10 @@ class BFSGraph:
             self.parent_action = parent_action
 
     def __init__(self, env, initial_state, depth):
-        assert isinstance(env, SokobanEnvFast), \
-            "Methods used for state clone and restore are sokoban specific."
+        assert isinstance(env, SokobanEnvFast), "Methods used for state clone and restore are sokoban specific."
+
         hashable_initial_state = HashableNumpyArray(initial_state)
-        root = self.BFSNode(
-            hashable_initial_state, depth=0, parent=None, parent_action=None)
+        root = self.BFSNode(hashable_initial_state, depth=0, parent=None, parent_action=None)
         node_queue = deque([root])
         nodes = set([root])
         state2node = {hashable_initial_state: root}
@@ -228,37 +211,4 @@ class BFSGoalBuilderSokoban(GoalBuilder):
             current_level_to_expand += 1
 
         goals.sort(key=lambda x: x.p, reverse=True)
-        return goals
-
-
-class TrivialGoalBuilderSokoban(GoalBuilder):
-    def __init__(self):
-
-
-        self.core_env = Sokoban()
-        self.dim_room = self.core_env.get_dim_room()
-        self.num_boxes = self.core_env.get_num_boxes()
-
-        self.root = None
-        self.data_creator = DataCreatorSokoban()
-
-    def build_goals(
-        self, input, max_radius, total_confidence_level, internal_confidence_level, max_goals, reverse_order):
-
-        del max_radius
-        del total_confidence_level
-        del max_goals
-        del reverse_order
-
-        goals = []
-        hashed_goals = {HashableNumpyArray(input)}
-        for action in range(4):
-            self.core_env.restore_full_state_from_np_array_version(input)
-            obs, _, _, _ = self.core_env.step(action)
-            if HashableNumpyArray(obs) not in hashed_goals:
-                new_goal = GoalBuilderNode(input, obs, 1, None, True, len(goals), 0, None)
-                new_goal.add_path_info(tuple([action]))
-                goals.append(new_goal)
-                hashed_goals.add(HashableNumpyArray(obs))
-
         return goals

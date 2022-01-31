@@ -16,6 +16,7 @@ class JobTrainSokobanPixelDiff(Job):
                  epochs_checkpoints
                  ):
 
+        # TODO parametrize class choice
         # self.goal_generating_network = ConditionalGoalPredictorSokoban()
         self.goal_generating_network = GoalPredictorPixelDiff()
         self.dataset = dataset

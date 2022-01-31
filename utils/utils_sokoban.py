@@ -1,8 +1,8 @@
 import itertools
 
-import numpy as np
-import matplotlib.pyplot as plt
 from gym_sokoban.envs.sokoban_env_fast import SokobanEnvFast
+import matplotlib.pyplot as plt
+import numpy as np
 
 from metric_logging import log_image
 
@@ -33,11 +33,13 @@ class HashableNumpyArray:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+
 def state_to_pic(state):
     dim_room = (state.shape[0], state.shape[1])
     env = SokobanEnvFast(dim_room, 2)
     env.restore_full_state_from_np_array_version(state)
     return env.render(mode='rgb_array').astype(int)
+
 
 def save_state(state, file_name, title=None):
     pic = state_to_pic(state)
@@ -46,6 +48,7 @@ def save_state(state, file_name, title=None):
         plt.title(title)
     plt.imshow(pic)
     plt.savefig(file_name)
+
 
 def many_states_to_fig(states, titles):
     def draw_and_describe(plot, state, title):
@@ -63,16 +66,19 @@ def many_states_to_fig(states, titles):
     plt.close()
     return fig
 
+
 def show_state(state):
     pic = state_to_pic(state)
     plt.clf()
     plt.imshow(pic)
     plt.show()
 
+
 def draw_and_describe(state, title):
     pic = state_to_pic(state)
     plt.title(f'{title}')
     plt.imshow(pic)
+
 
 def draw_and_log(state, title, channel, step):
     plt.clf()
@@ -86,12 +92,15 @@ def get_field_name_from_index(x):
     objects = {0: 'wall', 1: 'empty', 2: 'goal', 3: 'box_on_goal', 4: 'box', 5: 'agent', 6: 'agent_on_goal'}
     return objects[x]
 
+
 def get_field_index_from_name(x):
     objects_class = {'wall': 0, 'empty': 1, 'goal': 2, 'box_on_goal': 3, 'box': 4, 'agent': 5, 'agent_on_goal': 6}
     return objects_class[x]
 
+
 def detect_dim_room(state):
     return (state.shape[0], state.shape[1])
+
 
 def detect_num_boxes(state):
     dim_room = detect_dim_room(state)
@@ -104,3 +113,41 @@ def detect_num_boxes(state):
             num_boxes += 1
 
     return num_boxes
+
+
+def action_to_agent_coordinated(action):
+    """
+    Returns change of agent's coordinates (-1, 0 or 1) correcponding to given action. Correspondence was taken from
+    here: https://gitlab.com/awarelab/gym-sokoban/-/blob/master/gym_sokoban/envs/sokoban_env_fast.py#L166
+    """
+    assert action in (0, 1, 2, 3), 'Wrong value for action argument'
+
+    translation = {
+        0: (-1, 0),
+        1: (1, 0),
+        2: (0, -1),
+        3: (0, 1)
+    }
+
+    return translation[action]
+
+
+def agent_coordinates_to_action(delta_x, delta_y):
+    """
+    Returns action corresponding to given change of agent's coordinates (-1, 0 or 1). Correspondence was taken from
+    here: https://gitlab.com/awarelab/gym-sokoban/-/blob/master/gym_sokoban/envs/sokoban_env_fast.py#L166
+    """
+    assert delta_x in (-1, 0, 1), 'Wrong value for delta_x argument'
+    assert delta_y in (-1, 0, 1), 'Wrong value for delta_y argument'
+
+    translation = {
+        (-1, 0): 0,
+        (1, 0): 1,
+        (0, -1): 2,
+        (0, 1): 3
+    }
+    translation_key = (delta_x, delta_y)
+
+    assert translation_key in translation, 'Action should consists of exactly one move'
+
+    return translation[translation_key]

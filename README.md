@@ -178,6 +178,17 @@ python3 runner.py \
 --config="Sokoban.dim_room=(12,12)"
 ```
 
+Baseline policy <br>
+Requires: 120GB RAM, 28 CPU.
+
+You can change size of board `JobTrainSokobanPixelDiff.dataset`.
+
+```
+python3 runner.py \
+--config_file="configs/sokoban/train/policy.gin" \
+--config="JobSokobanTrainPolicyBaseline.dataset=\"${KSUBS_RESOURCES}/sokoban/datasets/12-12-4/\""
+```
+
 
 ## Rubik's Cube
 
@@ -378,8 +389,8 @@ Requires: 30GB RAM, 4 CPU.
 python3 runner.py \
 --config_file="configs/sokoban/solve/baseline.gin" \
 --config="Sokoban.dim_room=(12,12)" \
---config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\"" \
---config="JobSolveSokobanPixelDiff.n_jobs=5"
+--config="SokobanPolicyBaseline.model_id=\"${KSUBS_RESOURCES}/sokoban/policy/12-12-4\"" \
+--config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\""
 ```
 
 BF-kSubS (k = 4) <br>
@@ -394,15 +405,14 @@ python3 runner.py \
 --config="BestFSSolverSokoban.max_steps=4" \
 --config="Sokoban.dim_room=(12,12)" \
 --config="GoalPredictorPixelDiff.model_id=\"${KSUBS_RESOURCES}/sokoban/subgoal_generator/12-12-4\"" \
---config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\"" \
---config="JobSolveSokobanPixelDiff.n_jobs=5"
+--config="ValueEstimator.model_id=\"${KSUBS_RESOURCES}/sokoban/value/12-12-4\""
 ```
 
 For both BestFS and BF-kSubS evaluation you can change size of board using 
 `Sokoban.dim_room` parameter, but remember to adjust checkpoint paths as well.
 
 Note that these are single thread evaluations. They can be speed up by increasing 
-`JobSolveSokobanPixelDiff.n_parallel_workers` and `JobSolveSokobanPixelDiff.batch_size` 
+`JobSolveSokoban.n_parallel_workers` and `JobSolveSokoban.batch_size` 
 in gin configs, but this requires more RAM and CPU.
 
 ## Rubik's Cube: Figure 1.

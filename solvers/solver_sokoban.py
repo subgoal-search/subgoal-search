@@ -126,7 +126,7 @@ class BestFSSolverSokoban(GeneralSolverSokoban):
 
             #pop node from queue to expand
             current_node = nodes_queue.get()[-1]
-            reverse_order = True
+            reverse_order = True # We want goals returned by goal builder to be sorted from most to least probable.
 
             if current_node.depth < self.max_tree_depth:
                 goals = self.goal_builder.build_goals(
